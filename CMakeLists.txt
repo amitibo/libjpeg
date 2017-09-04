@@ -5,8 +5,10 @@
 # Please note that the package source code is licensed under its own license.
 
 project ( libjpeg C )
-cmake_minimum_required ( VERSION 2.8 )
+cmake_minimum_required ( VERSION 3.0.5 )
 include ( cmake/dist.cmake )
+
+project(jpeg VERSION 9.1 LANGUAGES C)
 
 OPTION(BUILD_STATIC OFF)
 OPTION(BUILD_EXECUTABLES ON)
@@ -40,6 +42,26 @@ if ( BUILD_STATIC )
 else ()
   add_library ( jpeg ${SRC} ${HEADERS} )
 endif()
+
+########## setup configuration headers ###########
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	"${CMAKE_BINARY_DIR}/lib/cmake/jpeg-config-version.cmake"
+	COMPATIBILITY AnyNewerVersion
+)
+
+set(INCLUDE_INSTALL_DIR "include")
+
+configure_package_config_file(jpeg-config.cmake.in
+	"${CMAKE_BINARY_DIR}/lib/cmake/jpeg-config.cmake"
+	INSTALL_DESTINATION lib/cmake
+	PATH_VARS INCLUDE_INSTALL_DIR
+)
+export(TARGETS jpeg FILE ${CMAKE_BINARY_DIR}/lib/cmake/jpeg-targets.cmake )
+install(FILES "${CMAKE_BINARY_DIR}/lib/cmake/jpeg-config-version.cmake"
+	"${CMAKE_BINARY_DIR}/lib/cmake/jpeg-config.cmake"
+	DESTINATION lib/cmake)
 
 if ( BUILD_EXECUTABLES )
   add_executable ( cjpeg cdjpeg.c cjpeg.c rdbmp.c rdgif.c rdppm.c rdrle.c rdtarga.c 
